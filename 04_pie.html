@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="./js/echarts.js"></script>
+    <script src="./js/jquery-1.7.1.min.js"></script>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        body{
+            background-color: rgba(0,0,0,1);
+            overflow: hidden;
+        }
+        .outerFrame.rotateY1 {
+            -webkit-transform-style:preserve-3d;
+            animation: rotateY1 3s linear;
+            -webkit-animation: rotateY1 3s linear;
+        }
+        .outerFrame.rotateY2 {
+            -webkit-transform-style:preserve-3d;
+            animation: rotateY2 2s linear;
+            -webkit-animation: rotateY2 2s linear;
+        }
+        @keyframes rotateY1 {
+            0%{
+                transform: rotateY(0deg);
+            }
+            100%{
+                transform:rotateY(180deg);
+            }
+        }
+        @-webkit-keyframes rotateY1 {
+            0%{
+                -webkit-transform: rotateY(0deg);
+            }
+            100%{
+                -webkit-transform:rotateY(180deg);
+            }
+        }
+        @keyframes rotateY2 {
+            0%{
+                transform:rotateY(180deg);
+                opacity: 0;
+            }
+            30%{
+                opacity: 0;
+            }
+            100%{
+                transform:rotateY(0deg);
+                opacity: 1;
+            }
+        }
+        @-webkit-keyframes rotateY2 {
+            0%{
+                -webkit-transform:rotateY(180deg);
+                opacity: 0;
+            }
+            30%{
+                opacity: 0;
+            }
+            100%{
+                -webkit-transform:rotateY(0deg);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="outerFrame">
+    <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+    <div id="main" style="height:100%;width:100%;"></div>
+</div>
+
+<script>
+
+    var json = {
+        "title":"主要渠道交易成功率",
+        "data":[
+            {value:46, name:'电子银行'},
+            {value:23, name:'自助业务'},
+            {value:20, name:'柜面业务'},
+            {value:8, name:'海外业务'},
+            {value:3, name:'其他业务'}
+        ]
+    }
+
+    var newData = [
+        {value:10, name:'water'},
+        {value:46, name:'electric1'},
+        {value:78, name:'gas'},
+        {value:21, name:'electric2'},
+        {value:36, name:'electric3'}
+    ];
+
+    //标志变量
+    var isOnload = false;
+    //自适应设置
+    width = $(window).width();
+    height = $(window).height();
+    //设置图表大小
+
+    $(".outerFrame").css("width",width);
+    $(".outerFrame").css("height",height);
+
+    var myChart = 0;
+    //数据重新加载
+    function initData(json) {
+
+        myChart = echarts.init(document.getElementById('main'));
+        option = {
+            title: {
+                text: json.title,
+                left: 'center',
+                top: '20',
+                textStyle: {
+                    color: '#00C3FF',
+					fontSize:25,
+					fontWeight:'600',
+					fontFamily:'Serif'
+                }
+            },
+            visualMap: {
+                show: false,
+                min: 0,
+                inRange: {
+                    colorLightness: [0.1, 1]
+                }
+            },
+            series : [
+                {
+                    name:'',
+                    type:'pie',
+                    radius: ['25%', '40%'],
+                    center: ['50%', '50%'],
+//                    data:[],
+                    data:json.data.sort(function (a, b) { return a.value - b.value}),
+                    roseType: 'angle',
+                    label: {
+                        normal: {
+                            textStyle: {
+                                color: '#00C3FF',
+                                fontSize:12,
+                            },
+                            formatter: "{b} \n {c}% "
+                        }
+                    },
+                    labelLine: {
+                        normal: {
+                            lineStyle: {
+                                color: '#00C3FF'
+                            },
+                            smooth: 0.2,
+                            length: 0,
+                            length2: 1
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color:['#004895'],
+                            shadowBlur: 200,
+                            shadowColor: 'rgba(0, 0, 0, o.5)'
+                        }
+                    }
+                }
+            ],
+            animationDuration:3000,
+            animationDelay:2000
+        };
+
+        // 为echarts对象加载数据
+        myChart.setOption(option);
+        window.onresize = myChart.resize;
+    }
+    initData(json)
+
+    function upData(newData) {
+        var newOption = {
+            series:[
+                {
+                    data:newData.sort(function (a, b) { return a.value - b.value})
+                }
+            ]
+        };
+        myChart.setOption(newOption);
+    }
+//    upData(newData);
+    //消失
+    function fadeOutPage() {
+        $('.outerFrame').addClass('rotateY1');
+        $('.outerFrame').removeClass('rotateY2');
+        $('.outerFrame').fadeOut(1800);
+    }
+
+
+    //出现
+    //消失
+    function fadeInPage() {
+        $('.outerFrame').removeClass('rotateY1');
+        $('.outerFrame').addClass('rotateY2');
+        $('.outerFrame').fadeIn(500);
+    }
+
+    //暴露全局函数
+    window.initData = initData;
+    window.upData = upData;
+    //消失隐藏全局暴露
+    window.fadeOutPage =fadeOutPage;  //界面隐藏时调用的函数
+    window.fadeInPage =fadeInPage;    //界面再次显示时调用的函数
+
+
+    window.onload = function () {
+        isOnload = true;
+    }
+    $(window).resize(function() {
+        width = $(window).width();
+        height = $(window).height();
+        $(".outerFrame").css("width",width);
+        $(".outerFrame").css("height",height);
+    });
+</script>
+</body>
+</html>

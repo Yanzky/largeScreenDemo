@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script SRC="./js/echarts.js"></script>
+    <script src="./js/jquery-1.7.1.min.js"></script>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .outerFrame {
+            overflow: hidden;
+        }
+        .topFrame {
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,1);
+        }
+        .topFrame .title {
+            height: 30px;
+            line-height: 30px;
+            color: #00C3FF;
+            font-size: 25px;
+            font-weight: bolder;
+            border-bottom: none;
+        }
+        .topFrame .content {
+            width: 100%;
+            height: 100%;
+        }
+		.topFrame .content {
+            -webkit-transform-style:preserve-3d;
+            animation: rotateX1 3s linear;
+            -webkit-animation: rotateX1 3s linear;
+        }
+        .outerFrame.rotateX2 {
+            -webkit-transform-style:preserve-3d;
+            animation: rotateX2 2s linear;
+            -webkit-animation: rotateX2 2s linear;
+        }
+        /* .topFrame .content.D-animate {
+            animation: widtheaseinAnimate 2s ease 1;
+            -webkit-animation: widtheaseinAnimate 2s ease 1;
+        } */       
+		.topFrame .content.D-animate {
+            animation: widtheaseinAnimate 2s ease 1;
+            -webkit-animation: widtheaseinAnimate 2s ease 1;
+        }
+        .topFrame .content .table {
+            width: 100%;
+            height: 100%;
+        }
+        .topFrame ul {
+            list-style: none;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .topFrame li {
+            float: left;
+            width: 33.3%;
+            margin-top:0px;
+            background-color: #fff;
+			
+            animation:myfirst 8s;
+            -webkit-animation:myfirst 8s; /* Safari and Chrome */
+			
+        }
+		/*旋转样式动画*/
+        @keyframes rotateX1 {
+            0%{
+                transform: rotateX(0deg);
+            }
+            100%{
+                transform:rotateX(360deg);
+            }
+        }
+        @-webkit-keyframes rotateX1 {
+            0%{
+                -webkit-transform: rotateX(0deg);
+            }
+            100%{
+                -webkit-transform:rotateX(360deg);
+            }
+        }
+        @keyframes rotateX2 {
+            0%{
+                transform:rotateX(180deg);
+                opacity: 0;
+            }
+            30%{
+                opacity: 0;
+            }
+            100%{
+                transform:rotateX(0deg);
+                opacity: 1;
+            }
+        }
+        @-webkit-keyframes rotateX2 {
+            0%{
+                -webkit-transform:rotateX(180deg);
+                opacity: 0;
+            }
+            30%{
+                opacity: 0;
+            }
+            100%{
+                -webkit-transform:rotateX(0deg);
+                opacity: 1;
+            }
+        }
+		
+		/* 隐藏显示动画 */
+        @-webkit-keyframes myfirst /* Safari and Chrome */
+        {
+            0%   {opacity:0;}
+            30%  {opacity:1;}
+            40%  {opacity: 0}
+            100%  {opacity:1;}
+        }
+
+        /*content宽度变为0 */
+        @keyframes widtheaseinAnimate{
+            0% {width:100%;height:100%;opacity: 1;}
+            100%{width: 0%;height:0;opacity: 0;}
+        }
+        @-webkit-keyframes widtheaseinAnimate{
+            0% {width:100%;height:100%;opacity: 1;}
+            100%{width: 0%;height:0;opacity: 0;}
+        }
+    </style>
+
+</head>
+<body>
+<div class="outerFrame">
+
+    <div class="topFrame">
+		<div class="title">全球实时成功率</div>
+        <div class="content">
+            <ul class="table">
+            </ul>
+        </div>
+    </div>
+</div>
+<script>
+    var json = {
+        "title":"全球实时成功率",
+        'datas':[
+            {'text':'东京','data':[{'name':'所占比例','value':'20'}]},
+            {'text':'首尔','data':[{'name':'所占比例','value':'60'}]},
+            {'text':'悉尼','data':[{'name':'所占比例','value':'100'}]},
+            {'text':'马尼拉','data':[{'name':'所占比例','value':'10'}]},
+            {'text':'胡志明','data':[{'name':'所占比例','value':'53'}]},
+            {'text':'曼谷','data':[{'name':'所占比例','value':'60'}]},
+            {'text':'金边','data':[{'name':'所占比例','value':'56'}]},
+            {'text':'雅加达','data':[{'name':'所占比例','value':'88'}]},
+            {'text':'新加坡','data':[{'name':'所占比例','value':'98'}]},
+        ]
+    }
+
+    var newData = [
+        {'text':'东京','data':[{'name':'所占比例','value':'98'}]},
+        {'text':'首尔','data':[{'name':'所占比例','value':'60'}]},
+        {'text':'悉尼','data':[{'name':'所占比例','value':'98'}]},
+        {'text':'马尼拉','data':[{'name':'所占比例','value':'98'}]},
+        {'text':'胡志明','data':[{'name':'所占比例','value':'98'}]},
+        {'text':'曼谷','data':[{'name':'所占比例','value':'98'}]},
+        {'text':'金边','data':[{'name':'所占比例','value':'98'}]},
+        {'text':'雅加达','data':[{'name':'所占比例','value':'98'}]},
+        {'text':'新加坡','data':[{'name':'所占比例','value':'98'}]},
+    ]
+    var isOnload = false;
+
+        //自适应设置
+        width = $(window).width();
+        height = $(window).height();
+        //设置图表大小
+
+        $(".outerFrame").css("width",width);
+        $(".outerFrame").css("height",height);
+
+        var myChart = 0;
+
+        function initData(json) {
+
+            var datas = json['datas'];
+            var str = " ";
+            var dataLength = 0;
+            var strTitle = '';
+            strTitle += '<span>'+json['title']+'</span>';
+            $('.title').html(strTitle)
+
+            for (var i=0;i<datas.length;i++) {
+                str +='<li id="pie"></li>';
+                dataLength++;
+            }
+
+            $('.content .table').html(str);
+
+            var tableHeight = $('.table').css('height');
+            var liHeight = 0;
+            if(dataLength%3 == 0) {
+                liHeight = ((parseInt(tableHeight)) / (dataLength/3));
+            }else {
+                odd = (parseInt(dataLength/3) + 1)
+                liHeight = ((parseInt(tableHeight)) / odd);
+            }
+            $('.table li').css('height',liHeight +'px')
+
+            $('.table li').each(function (index,element) {
+
+                //初始化echarts
+                myChart = echarts.init(element);
+
+                echarts1(datas[index])
+
+            });
+
+        }
+        function echarts1(obj) {
+            var num = obj['data'][0]['value'];
+            var labelTop = {
+                normal : {
+                    color:'#0063C9',
+                    label : {
+                        show : false,
+                        position : 'center',
+                        formatter : '{b}',
+                        textStyle: {
+                            baseline : 'bottom'
+                        }
+                    },
+                    labelLine : {
+                        show : false
+                    }
+                }
+            };
+            var labelFromatter = {
+                normal : {
+                    label : {
+                        formatter : function (params){
+                            return num + '%'
+                        },
+                        textStyle: {
+                            baseline : 'top',
+                            color:'#fff',
+                            fontSize : '16',
+                            fontFamily:'microsoft yahei'
+                        }
+                    }
+                },
+            }
+            var labelBottom = {
+                normal : {
+                    color: json['color'],
+                    label : {
+                        show : true,
+                        position : 'center'
+                    },
+                    labelLine : {
+                        show : false
+                    }
+                }
+            };
+
+            var radius = ['63%',"70%"];
+
+            var option = {
+                animation:false,
+                color: ['#00FEFF','#0063C9'],
+                title: {
+                    //把标题写入中间区域
+                    text: obj['text'],
+                    x: 'center',
+                    top:'0',
+                    textStyle : {
+                        color:'#00C3FF',
+                        fontSize : '16',
+                    }
+                },
+                series : [
+                    {
+                        type: 'pie',
+                        radius : radius,
+                        x: '0%',
+                        data : [
+                            {name:'other', value:num, itemStyle : labelBottom},
+                            {name:'GoogleMaps', value:100-(num*1),itemStyle : labelTop}
+                        ],
+                        itemStyle : labelFromatter,
+                    }
+                ]
+            };
+
+
+            myChart.setOption(option);
+            window.onresize = myChart.resize;
+
+        }
+
+        initData(json);
+
+
+    function upData(newData) {
+       for(var i=0;i<newData.length;i++) {
+           echarts1(newData[i])
+       }
+    }
+
+
+    function fadeOutPage() {
+        $('.outerFrame').fadeOut(2000);
+        $('.content').addClass('D-animate');
+//        upData([0,0,0,0,0,0,0,0])
+    }
+    function fadeInPage(){
+        $('.content').removeClass('D-animate');
+        $('.outerFrame').fadeIn(500);
+//        upData(newData)
+    }
+    upData(newData);
+
+    window.initData = initData;
+    window.upData = upData;
+    window.fadeOutPage = fadeOutPage;
+    window.fadeInPage = fadeInPage;
+
+    $(window).resize(function() {
+        width = $(window).width();
+        height = $(window).height();
+        $(".outerFrame").css("width",width);
+        $(".outerFrame").css("height",height);
+    });
+
+    window.onload = function () {
+        isOnload = true;
+    }
+</script>
+
+</body>
+</html>

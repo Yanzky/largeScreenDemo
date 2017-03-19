@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="./js/echarts.js"></script>
+    <script src="./js/jquery-1.7.1.min.js"></script>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        body{
+            background-color: rgba(0,0,0,1);
+            overflow: hidden;
+        }
+
+        .outerFrame .header {
+            height: 30px;
+            line-height: 30px;
+            padding-bottom: 10px;
+            color: #00C3FF;
+            font-size: 25px;
+            font-weight: bolder;
+            border-bottom: none;
+        }
+
+        .outerFrame.rotateX1 {
+            -webkit-transform-style:preserve-3d;
+            animation: rotateX1 3s linear;
+            -webkit-animation: rotateX1 3s linear;
+        }
+        .outerFrame.rotateX2 {
+            -webkit-transform-style:preserve-3d;
+            animation: rotateX2 2s linear;
+            -webkit-animation: rotateX2 2s linear;
+        }
+        @keyframes rotateX1 {
+            0%{
+                transform: rotateX(0deg);
+                /*opacity: 1;*/
+            }
+            100%{
+                transform:rotateX(180deg);
+                /*opacity: 0;*/
+            }
+        }
+        @-webkit-keyframes rotateX1 {
+            0%{
+                -webkit-transform: rotateX(0deg);
+                /*opacity: 1;*/
+            }
+            100%{
+                -webkit-transform:rotateX(180deg);
+                /*opacity: 0;*/
+            }
+        }
+        @keyframes rotateX2 {
+            0%{
+                /*width: 0%;*/
+                transform:rotateX(180deg);
+                opacity: 0;
+            }
+            30%{
+                opacity: 0;
+            }
+            100%{
+                /*width:100%;*/
+                transform:rotateX(0deg);
+                opacity: 1;
+            }
+        }
+        @-webkit-keyframes rotateX2 {
+            0%{
+                /*width: 0%;*/
+                -webkit-transform:rotateX(180deg);
+                opacity: 0;
+            }
+            30%{
+                opacity: 0;
+            }
+            100%{
+                /*width:100%;*/
+                -webkit-transform:rotateX(0deg);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="outerFrame">
+    <div class="header">历史交易成功率</div>
+<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+    <div id="main" style="height:83%;width:100%;"></div>
+</div>
+<script>
+
+    var json = {
+        "title":"历史交易成功率",
+        "xAxis":"时间",
+        "yAxis":"值",
+        "category":['03-08','03-09','03-10','03-11','03-12','03-13','03-14'],
+        "info":[
+            {"name":"交易成功率","data":[90,91,92,95,89,85,80]},
+            {"name":"跨行交易成功率","data":[90,88,85,92,91,87,67]},
+        ]
+    };
+    var newData = [
+        {"name":"交易成功率","data":[90,91,92,95,89,85,80]},
+        {"name":"跨行交易成功率","data":[99,88,85,92,91,80,67]},
+    ];
+
+    var isOnload = false;
+
+//自适应设置
+        width = $(window).width();
+        height = $(window).height();
+//设置图表大小
+
+        $(".outerFrame").css("width",width);
+        $(".outerFrame").css("height",height);
+
+        var myChart = 0;
+
+        function initData(json) {
+            $('.outerFrame .header').html(json.title);
+            var lengend = [];
+            var info = json.info;
+            for(var i=0;i<info.length;i++) {
+                lengend.push(info[i].name);
+            }
+
+            myChart = echarts.init(document.getElementById('main'));
+
+            option = {
+
+                legend: {
+                    left: '20',
+                    width:'10',
+                    data:lengend,
+                    textStyle:{
+                        color:'#00C3FF'
+                    }
+                },
+                calculable : true,
+                grid: {
+                    borderWidth: 0,
+                    x:20,
+                    x2:80,
+                },
+                xAxis : [
+                    {
+                        type : 'category',
+                        boundaryGap : false,
+                        splitLine:{show:false},
+                        axisTick:{show:false,},
+                        axisLine:{show:false},
+                        name:json.xAxis,
+                        nameRotate:'0',
+                        nameGap:'40',
+                        nameTextStyle:{
+                            color:'#00C3FF',
+                            fontSize:'16',
+                        },
+                        nameLocation:'middle',
+                        axisLabel:{
+                            margin:20,
+                            textStyle:{
+                                color:'#00C3FF',
+                                fontSize:12,
+                                fontFamily:'microsoft yahei'
+                            }
+                        },
+                        data :  json.category
+                    }
+                ],
+                yAxis : [
+                    {
+                        type : 'value',
+                        position:'right',
+                        nameGap:'25',
+                        interval:7,
+                        name:json.yAxis,
+                        min:'dataMin',
+                        nameRotate:'90',
+                        nameGap:'40',
+                        nameTextStyle:{
+                            color:'#00C3FF',
+                            fontSize:'16',
+                        },
+                        nameLocation:'middle',
+                        splitLine:{
+                            lineStyle:{
+                                color:'#005AB8'
+                            }
+                        },
+                        axisTick:{
+                            show:false
+                        },
+                        axisLine:{show:false},
+                        axisLabel : {
+                            margin:'10',
+                            formatter: '{value}',
+                            textStyle:{
+                                color:'#00C3FF',
+                                fontSize:12,
+                                fontFamily:'microsoft yahei'
+                            }
+                        }
+                    }
+                ],
+                series : [
+                    {
+                        name:'交易成功率',
+                        type:'line',
+                        smooth:true,
+                        symbol:'roundRect',
+                        itemStyle:{
+                            normal:{
+                                color:'#0084FC',
+                                width:2
+                            }
+                        },
+                        markPoint: {
+                            data: [
+                                {type: 'max', name: '最大值'}
+                            ]
+                        },
+                        areaStyle: {
+                            normal: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                    offset: 0, color: 'rgba(0,132,252,0.5)' // 0% 处的颜色
+                                }, {
+                                    offset: 1, color: 'rgba(2,25,12,0.5)' // 100% 处的颜色
+                                }], false)
+                            }
+                        },
+                        data:[90,91,92,95,89,85,80]
+                    },
+                    {
+                        name:'跨行交易成功率',
+                        type:'line',
+                        smooth:true,
+                        symbol:'roundRect',
+                        itemStyle:{
+                            normal:{
+                                color:'#00CFFF',
+                                width:3
+                            }
+                        },
+                        markPoint: {
+                            data: [
+                                {type: 'max', name: '最大值'}
+                            ]
+                        },
+                        areaStyle: {
+                            normal: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                    offset: 0, color: 'rgba(0,213,255,0.5)' // 0% 处的颜色
+                                }, {
+                                    offset: 1, color: 'rgba(0,51,109,0.5)' // 100% 处的颜色
+                                }], false)
+                            }
+                        },
+                        data:[99,88,85,92,91,87,67]
+                    }
+                ],
+                animationDuration:1000,
+                animationDelay:1000
+            };
+        // 为echarts对象加载数据
+            myChart.setOption(option);
+            window.onresize = myChart.resize;
+        }
+
+        initData(json);
+
+        function upData(newData) {
+            var lengend1 = [];
+            for(var i=0;i<newData.length;i++) {
+                lengend1.push(newData[i].name);
+            }
+            myChart.setOption({
+                legend:{data:lengend1},
+                series:newData
+            });
+        }
+
+    //消失
+    function fadeOutPage() {
+        $('.outerFrame').addClass('rotateX1');
+        $('.outerFrame').removeClass('rotateX2');
+        $('.outerFrame').fadeOut(1800);
+    }
+
+    //出现
+    //消失
+    function fadeInPage() {
+        $('.outerFrame').removeClass('rotateX1');
+        $('.outerFrame').addClass('rotateX2');
+        $('.outerFrame').fadeIn(500);
+    }
+
+        //暴露全局函数
+        window.initData = initData;
+        window.upData = upData;
+        //消失隐藏全局暴露
+        window.fadeOutPage =fadeOutPage;  //界面隐藏时调用的函数
+        window.fadeInPage =fadeInPage;    //界面再次显示时调用的函数
+        $(window).resize(function() {
+            width = $(window).width();
+            height = $(window).height();
+            $(".outerFrame").css("width",width);
+            $(".outerFrame").css("height",height);
+        });
+        window.onload = function () {
+            isOnload = true;
+        }
+
+</script>
+</body>
+</html>

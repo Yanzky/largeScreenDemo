@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>bar</title>
+    <script src="./js/echarts.js"></script>
+    <script src="./js/jquery-1.7.1.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: rgba(0,0,0,1);
+            overflow: hidden;
+        }
+		.outerFrame .header {
+            height: 30px;
+            line-height: 30px;
+            color: #00C3FF;
+            font-size: 25px;
+            font-weight: bolder;
+            border-bottom: none;
+        }
+        .outerFrame.rotate1 {
+            animation: rotate 3s linear;
+            -webkit-animation: rotate 3s linear;
+        }
+        .outerFrame.widthChange {
+            animation: width 2s linear;
+            -webkit-animation: width 2s linear;
+        }
+        #main div {
+            top: -30px;
+        }
+        @keyframes rotate {
+            0%{
+                transform: scale(1) rotate(0deg);
+            }
+            100%{
+                transform: scale(0) rotate(360deg);
+            }
+        }
+        @-webkit-keyframes rotate {
+            0%{
+                -webkit-transform: scale(1) rotate(0deg);
+            }
+            100%{
+                -webkit-transform: scale(0) rotate(360deg);
+            }
+        }
+        @keyframes width {
+            0%{
+                transform:  scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            100%{
+                transform: scale(1) rotate(-360deg);
+                opacity: 1;
+            }
+        }
+        @-webkit-keyframes width {
+            0%{
+                -webkit-transform:  scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            100%{
+                -webkit-transform: scale(1) rotate(-360deg);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+<div class="outerFrame">
+	<div class="header">自助交易量排名</div>
+    <div id="main" style="width: 100%;height:100%;"></div>
+</div>
+<script type="text/javascript">
+
+    var json = {
+        "info":{
+            "category":['北京', '上海', '深圳', '广东', '山东', '浙江', '江苏'],
+            "data":[55418, 54100, 46652, 41556, 35815, 30112, 29774]
+        }
+    };
+    var newData = [55418, 54100, 46652, 41556, 35815, 30112, 29774];
+    //标志变量
+    var isOnload = false;
+    //自适应设置
+    width = $(window).width();
+    height = $(window).height();
+    //设置图表大小
+
+    $(".outerFrame").css("width",width);
+    $(".outerFrame").css("height",height);
+
+    var myChart = 0;
+    //数据变化函数调用
+    function initData(json) {
+        myChart = echarts.init(document.getElementById('main'));
+        var option = {
+            color: ['#00C3FF'],
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis : [
+                {
+                    type : 'category',
+                    splitLine:{show:false},
+                    splitArea:{show:false},
+                    axisLine:{show:false},
+                    axisTick:{show:false},
+                    axisLabel:{
+                        textStyle:{
+                            color:'#00C3FF',
+                            fontSize:12,
+//                            fontFamily:'microsoft yahei'
+                        }
+                    },
+                    data : json.info.category,
+                }
+            ],
+            yAxis : [
+                {
+                    type : 'value',
+                    splitLine:{show:false},
+                    axisLine:{show:false},
+                    axisTick:{show:false},
+                    axisLabel:{
+                        textStyle:{
+                            color:'#00C3FF',
+                            fontSize:12,
+//                            fontFamily:'microsoft yahei'
+                        }
+                    },
+                }
+            ],
+            series : [
+                {
+                    type:'bar',
+                    barWidth: '50%',
+                    itemStyle: {
+                        normal: {
+                            color: new echarts.graphic.LinearGradient(
+                                    0, 0, 0, 1,
+                                    [
+                                        {offset: 0, color: '#00D7FF'},
+                                        {offset: 0.5, color: '#004EA1'},
+                                        {offset: 1, color: '#004EA1'}
+                                    ]
+                            )
+                        },
+                        emphasis: {
+                            color: new echarts.graphic.LinearGradient(
+                                    0, 0, 0, 1,
+                                    [
+                                        {offset: 0, color: '#2378f7'},
+                                        {offset: 0.7, color: '#2378f7'},
+                                        {offset: 1, color: '#83bff6'}
+                                    ]
+                            )
+                        }
+                    },
+                    data:[]
+                }
+            ],
+            animationDuration:3000,
+            animationDelay:1000
+        };
+        myChart.setOption(option);
+        window.onresize = myChart.resize;
+    }
+
+    initData(json);
+
+    //数据更新后执行
+    function upData(newData) {
+        myChart.setOption({
+            series:[{
+                data:newData
+            }]
+
+        });
+    }
+    upData(newData);
+
+    window.onload = function () {
+        isOnload = true;
+    }
+
+    //消失
+    function fadeOutPage() {
+        $('.outerFrame').addClass('rotate1');
+        $('.outerFrame').removeClass('widthChange');
+        $('.outerFrame').fadeOut(2000);
+    }
+
+    //出现
+    //消失
+    function fadeInPage() {
+        $('.outerFrame').removeClass('rotate1');
+        $('.outerFrame').addClass('widthChange');
+        $('.outerFrame').fadeIn(500);
+    }
+
+    //暴露全局函数
+    window.initData = initData;
+    window.upData = upData;
+
+    window.fadeOutPage =fadeOutPage;
+    window.fadeInPage =fadeInPage;
+
+    //缩放浏览器，重新获取宽高
+    $(window).resize(function() {
+        width = $(window).width();
+        height = $(window).height();
+        $(".outerFrame").css("width",width);
+        $(".outerFrame").css("height",height);
+    });
+    // 使用刚指定的配置项和数据显示图表。
+</script>
+</body>
+</html>
